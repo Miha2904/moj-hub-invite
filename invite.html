@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pozivnica — Moj Dom</title>
+<style>
+  body {
+    font-family: -apple-system, system-ui, sans-serif;
+    background: #FBF4EC;
+    color: #2A2118;
+    margin: 0;
+    padding: 48px 24px;
+    text-align: center;
+  }
+  .badge {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    border-radius: 18px;
+    background: rgba(196, 123, 92, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+  }
+  h1 { font-size: 22px; margin: 0 0 12px; }
+  p { font-size: 15px; line-height: 1.5; color: #5A4D3E; max-width: 360px; margin: 0 auto 8px; }
+  a.manual {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 14px 28px;
+    background: #C47B5C;
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 700;
+  }
+  .error { color: #B3261E; margin-top: 24px; }
+</style>
+</head>
+<body>
+  <div class="badge">🏠</div>
+  <h1>Otvaranje Moj Dom aplikacije…</h1>
+  <p id="msg">Ako se ništa ne dogodi automatski, provjeri je li aplikacija instalirana, zatim tapni gumb ispod.</p>
+  <div id="manualWrap"></div>
+  <p class="error" id="errMsg" style="display:none">Ovaj link nema valjane podatke o pozivnici.</p>
+
+<script>
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var data = params.get('d');
+  var manualWrap = document.getElementById('manualWrap');
+  var errMsg = document.getElementById('errMsg');
+
+  if (!data) {
+    document.getElementById('msg').style.display = 'none';
+    errMsg.style.display = 'block';
+    return;
+  }
+
+  var isAndroid = /android/i.test(navigator.userAgent);
+  var customScheme = 'mojhub://invite/' + encodeURIComponent(data).replace(/%3D/g, '=');
+  // Android: intent:// syntax is the only reliable way to get a real browser
+  // (as opposed to a messaging app's own in-app webview) to actually hand off
+  // to the installed app, rather than trying to resolve mojhub:// as a website.
+  var intentUrl = 'intent://invite/' + data +
+      '#Intent;scheme=mojhub;package=com.moj_dom;end';
+
+  var target = isAndroid ? intentUrl : customScheme;
+
+  var link = document.createElement('a');
+  link.className = 'manual';
+  link.href = customScheme;
+  link.textContent = 'Otvori Moj Dom';
+  manualWrap.appendChild(link);
+
+  window.location.href = target;
+})();
+</script>
+</body>
+</html>
